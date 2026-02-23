@@ -1,0 +1,13 @@
+# Ignore ML model folders
+FoodQualityAgent/food-quality-agent/food_quality_model/
+ux-agent-main/data/
+ux-agent-main/models/
+ux-agent-main/training/
+
+# Extra safety
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+*.bin
+*.zip

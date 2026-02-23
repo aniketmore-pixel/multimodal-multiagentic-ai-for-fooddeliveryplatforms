@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic AI For Food Delivery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cooperBlue: '#2C49D8',
+                        cooperGreen: '#22C55E',
+                    },
+                    boxShadow: {
+                        brutal: '4px 4px 0px 0px rgba(0,0,0,1)',
+                        brutalLg: '6px 6px 0px 0px rgba(0,0,0,1)',
+                        brutalSm: '2px 2px 0px 0px rgba(0,0,0,1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Ensuring sharp corners everywhere to match the reference */
+        * { border-radius: 0 !important; }
+    </style>
+</head>
+<body class="bg-white text-black font-sans p-6 min-h-screen">
+
+    <div class="max-w-7xl mx-auto mb-10 border-b-2 border-black pb-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-cooperBlue border-2 border-black shadow-brutalSm"></div>
+            <div>
+                <h1 class="font-black text-sm uppercase leading-none">MultiModal Agentic AI</h1>
+                <p class="text-[10px] text-gray-600 uppercase font-bold tracking-wider">for Food Delivery Platforms</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="sendTwilioUpdate()" id="twilio-btn" class="bg-black text-white border-2 border-black px-4 py-2 shadow-brutal font-bold text-xs uppercase hover:bg-gray-800 hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutalSm transition-all active:shadow-none active:translate-x-[4px] active:translate-y-[4px]">
+                Send SMS Update
+            </button>
+            <div class="border-2 border-black px-4 py-2 shadow-brutal font-bold text-xs uppercase bg-white">
+                System Active
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto space-y-12">
+        
+        <div>
+            <div class="text-[11px] font-bold tracking-[0.2em] text-cooperBlue uppercase mb-4">O v e r v i e w</div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-8 border-2 border-black shadow-brutalLg lg:col-span-1 flex flex-col justify-between">
+                    <div>
+                        <h1 class="text-2xl font-black uppercase mb-8">Holistic Index</h1>
+                        <div class="flex flex-col items-center gap-6 mb-8">
+                            <div class="relative w-40 h-40 flex items-center justify-center border-4 border-black shadow-brutal bg-white">
+                                <span id="holistic-score" class="text-6xl font-black text-black">0.00</span>
+                            </div>
+                            <div class="text-center">
+                                <h2 class="text-xl font-bold uppercase" id="feedback-title">Calculating...</h2>
+                                <p class="text-black font-medium mt-1 text-xs uppercase" id="feedback-text">Waiting for agent data...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border-2 border-black shadow-brutal p-4 w-full">
+                        <h3 class="text-black font-black uppercase mb-1 text-sm">Attention Required</h3>
+                        <p class="text-gray-600 text-[10px] font-bold uppercase mb-2">Underperforming Agent:</p>
+                        <div class="inline-block border-2 border-black bg-red-500 text-white px-2 py-1 shadow-brutalSm font-bold text-sm uppercase w-full text-center" id="underperforming-agent">
+                            None
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 border-2 border-black shadow-brutalLg lg:col-span-2 flex flex-col">
+                    <div class="flex justify-between items-start mb-6">
+                        <h1 class="text-2xl font-black uppercase">Live Trend Analysis</h1>
+                        <div class="border-2 border-black px-3 py-1 shadow-brutalSm text-[10px] font-bold uppercase bg-cooperGreen text-white">
+                            Real-Time
+                        </div>
+                    </div>
+                    <div class="relative flex-grow w-full h-64 border-2 border-black p-4 shadow-inner bg-gray-50">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="text-[11px] font-bold tracking-[0.2em] text-cooperGreen uppercase mb-4">A g e n t  D e t a i l s</div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <div class="bg-white p-5 border-2 border-black shadow-brutal flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold text-black uppercase">UX Agent</h3>
+                            <div class="border-2 border-black px-2 py-1 shadow-brutalSm text-[10px] font-bold uppercase bg-white flex flex-col items-center leading-tight">
+                                <span>Score</span>
+                                <span id="ux-score">-</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3 mb-6 text-sm font-medium border-t-2 border-black pt-4">
+                            <p class="flex justify-between border-b border-gray-200 pb-1"><span>Delta:</span> <span id="ux-delta" class="font-bold text-black">-</span></p>
+                            <p class="flex justify-between border-b border-gray-200 pb-1"><span>Status:</span> <span id="ux-status" class="font-bold text-black">-</span></p>
+                        </div>
+                    </div>
+                    <button onclick="window.open('http://localhost:8501', '_blank')" class="w-full bg-cooperBlue text-white border-2 border-black py-2 font-bold uppercase text-xs shadow-brutal hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutalSm transition-all active:shadow-none active:translate-x-[4px] active:translate-y-[4px]">Go to Dashboard</button>
+                </div>
+
+                <div class="bg-white p-5 border-2 border-black shadow-brutal flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold text-black uppercase">Delivery</h3>
+                            <div class="border-2 border-black px-2 py-1 shadow-brutalSm text-[10px] font-bold uppercase bg-white flex flex-col items-center leading-tight">
+                                <span>Avg</span>
+                                <span id="del-score">-</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3 mb-6 text-sm font-medium border-t-2 border-black pt-4">
+                            <p class="flex justify-between border-b border-gray-200 pb-1"><span>Orders:</span> <span id="del-orders" class="font-bold text-black">-</span></p>
+                            <p class="flex justify-between border-b border-gray-200 pb-1 text-red-600"><span>Alerts:</span> <span id="del-alerts" class="font-bold">-</span></p>
+                        </div>
+                    </div>
+                    <button onclick="window.open('http://localhost:8275', '_blank')" class="w-full bg-white text-black border-2 border-black py-2 font-bold uppercase text-xs shadow-brutal hover:bg-gray-100 hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutalSm transition-all active:shadow-none active:translate-x-[4px] active:translate-y-[4px]">Go to Dashboard</button>
+                </div>
+
+                <div class="bg-white p-5 border-2 border-black shadow-brutal flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold text-black uppercase">Churn</h3>
+                            <div class="border-2 border-black px-2 py-1 shadow-brutalSm text-[10px] font-bold uppercase bg-cooperGreen text-white flex flex-col items-center leading-tight">
+                                <span>Prob</span>
+                                <span id="churn-prob">-</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3 mb-6 text-sm font-medium border-t-2 border-black pt-4">
+                            <p class="flex justify-between border-b border-gray-200 pb-1"><span>UX Risk:</span> <span id="churn-ux" class="font-bold text-black">-</span></p>
+                            <p class="flex justify-between border-b border-gray-200 pb-1 text-red-600"><span>Del. Risk:</span> <span id="churn-del" class="font-bold">-</span></p>
+                        </div>
+                    </div>
+                    <button onclick="window.open('http://localhost:4996', '_blank')" class="w-full bg-white text-black border-2 border-black py-2 font-bold uppercase text-xs shadow-brutal hover:bg-gray-100 hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutalSm transition-all active:shadow-none active:translate-x-[4px] active:translate-y-[4px]">Go to Dashboard</button>
+                </div>
+
+                <div class="bg-white p-5 border-2 border-black shadow-brutal flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold text-black uppercase">Food Qual.</h3>
+                            <div class="border-2 border-black px-2 py-1 shadow-brutalSm text-[10px] font-bold uppercase bg-white flex flex-col items-center leading-tight">
+                                <span>Score</span>
+                                <span id="food-score">-</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3 mb-6 text-sm font-medium border-t-2 border-black pt-4">
+                            <p class="flex justify-between border-b border-gray-200 pb-1"><span>Label:</span> <span id="food-label" class="font-bold text-black">-</span></p>
+                            <p class="flex justify-between border-b border-gray-200 pb-1"><span>Reviews:</span> <span id="food-reviews" class="font-bold text-black">-</span></p>
+                        </div>
+                    </div>
+                    <button onclick="window.open('http://localhost:4782', '_blank')" class="w-full bg-white text-black border-2 border-black py-2 font-bold uppercase text-xs shadow-brutal hover:bg-gray-100 hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-brutalSm transition-all active:shadow-none active:translate-x-[4px] active:translate-y-[4px]">Go to Dashboard</button>
+                </div>
+
+            </div>
+        </div>
+        <p class="text-xs font-bold uppercase text-right text-gray-400 mt-4" id="last-updated">Last Updated: -</p>
+    </div>
+
+    <script>
+        Chart.defaults.font.family = 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+        Chart.defaults.color = '#000000';
+        Chart.defaults.font.weight = 'bold';
+
+        // Variables to store current state for the Twilio SMS
+        let currentHolisticIndex = "0.00";
+        let currentStatusText = "Calculating...";
+
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        const trendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], 
+                datasets: [{
+                    label: 'Satisfaction Index',
+                    data: [], 
+                    borderColor: '#000000',
+                    backgroundColor: 'rgba(44, 73, 216, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#22C55E',
+                    pointBorderColor: '#000000',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    fill: true,
+                    tension: 0 
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#ffffff',
+                        titleColor: '#000000',
+                        bodyColor: '#000000',
+                        borderColor: '#000000',
+                        borderWidth: 2,
+                        cornerRadius: 0,
+                        padding: 10,
+                        displayColors: false
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 1,
+                        grid: { color: '#e5e7eb', borderColor: '#000000', tickLength: 5 },
+                        ticks: { stepSize: 0.2 }
+                    },
+                    x: {
+                        grid: { display: false, borderColor: '#000000' }
+                    }
+                },
+                animation: { duration: 400 }
+            }
+        });
+
+        const normalizeScore = {
+            ux: (val) => Math.min(Math.max(val / 10, 0), 1),
+            delivery: (val) => Math.min(Math.max(val / 5, 0), 1), 
+            // Normalize percentage (0-100) to index (0-1) where lower churn risk = higher satisfaction
+            churn: (val) => Math.min(Math.max(1 - (val / 100), 0), 1), 
+            food: (val) => Math.min(Math.max(val, 0), 1) 
+        };
+
+        async function sendTwilioUpdate() {
+            const btn = document.getElementById('twilio-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "SENDING...";
+
+            try {
+                // Call your local Flask server instead of calling Twilio directly
+                const response = await fetch('/api/send-sms', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        index: currentHolisticIndex, 
+                        status: currentStatusText 
+                    })
+                });
+
+                if (response.ok) {
+                    alert("Status update sent successfully via Twilio!");
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to send SMS: ${errorData.message}`);
+                }
+            } catch (error) {
+                console.error("Error calling local SMS API:", error);
+                alert("Network error. Is your Flask backend running?");
+            } finally {
+                btn.innerText = originalText;
+            }
+        }
+
+        async function pingWhatsAppServer(index, status, attention) {
+            try {
+                await fetch('http://localhost:3001/send-whatsapp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ index, status, attention })
+                });
+            } catch (err) {
+                console.log("WhatsApp server not running or unreachable.");
+            }
+        }
+
+        async function fetchAgentData() {
+            try {
+                let results = {};
+                try {
+                    const response = await fetch('/api/data');
+                    if(response.ok) results = await response.json();
+                } catch(e) {
+                    // Updated mock data for the new Churn structure
+                    results = {
+                        ux: { status: 'success', data: { overview: { rolling_average: Math.random() * 3 + 7, delta: 0.1, system_status: 'OPTIMAL' } } },
+                        delivery: { status: 'success', data: { kpis: { overall_avg_score: Math.random() * 1 + 4, orders_processed: 142, critical_alerts: 0 } } },
+                        churn: { status: 'success', data: { data: { overall_churn_risk_percent: Math.random() * 20 + 20, factors: { ux_friction_pct: 25.5, delivery_delay_pct: 30.0 } } } },
+                        food: { status: 'success', data: { holisticScore: Math.random() * 0.3 + 0.7, holisticLabel: 'GOOD', totalReviews: 89 } }
+                    };
+                }
+
+                let normalizedScores = {};
+
+                if (results.ux && results.ux.status === 'success') {
+                    const data = results.ux.data.overview;
+                    document.getElementById('ux-score').innerText = data.rolling_average.toFixed(2);
+                    document.getElementById('ux-delta').innerText = data.delta.toFixed(2);
+                    document.getElementById('ux-status').innerText = data.system_status;
+                    normalizedScores['UX Agent'] = normalizeScore.ux(data.rolling_average);
+                } else {
+                    document.getElementById('ux-score').innerText = "OFF";
+                    document.getElementById('ux-delta').innerText = "-";
+                    document.getElementById('ux-status').innerText = "ERROR";
+                }
+
+                if (results.delivery && results.delivery.status === 'success') {
+                    const data = results.delivery.data.kpis;
+                    document.getElementById('del-score').innerText = data.overall_avg_score.toFixed(1) + '/5';
+                    document.getElementById('del-orders').innerText = data.orders_processed;
+                    document.getElementById('del-alerts').innerText = data.critical_alerts;
+                    normalizedScores['Delivery Agent'] = normalizeScore.delivery(data.overall_avg_score);
+                } else {
+                    document.getElementById('del-score').innerText = "OFF";
+                    document.getElementById('del-orders').innerText = "-";
+                    document.getElementById('del-alerts').innerText = "-";
+                }
+
+                if (results.churn && results.churn.status === 'success') {
+                    // Extract the nested data object due to the double "data" wrapper from your proxy API
+                    const churnData = (results.churn.data && results.churn.data.data !== undefined) ? results.churn.data.data : results.churn.data;
+                    
+                    document.getElementById('churn-prob').innerText = churnData.overall_churn_risk_percent.toFixed(1) + '%';
+                    
+                    // UPDATED: Replaced ux_risk_percent with ux_friction_pct and delivery_risk_percent with delivery_delay_pct
+                    document.getElementById('churn-ux').innerText = churnData.factors.ux_friction_pct.toFixed(1) + '%';
+                    document.getElementById('churn-del').innerText = churnData.factors.delivery_delay_pct.toFixed(1) + '%';
+                    
+                    normalizedScores['Churn Agent'] = normalizeScore.churn(churnData.overall_churn_risk_percent);
+                } else {
+                    document.getElementById('churn-prob').innerText = "OFF";
+                    document.getElementById('churn-ux').innerText = "-";
+                    document.getElementById('churn-del').innerText = "-";
+                }
+
+                if (results.food && results.food.status === 'success') {
+                    const data = results.food.data;
+                    document.getElementById('food-score').innerText = data.holisticScore.toFixed(2);
+                    document.getElementById('food-label').innerText = data.holisticLabel;
+                    document.getElementById('food-reviews').innerText = data.totalReviews;
+                    normalizedScores['Food Quality Agent'] = normalizeScore.food(data.holisticScore);
+                } else {
+                    document.getElementById('food-score').innerText = "OFF";
+                    document.getElementById('food-label').innerText = "-";
+                    document.getElementById('food-reviews').innerText = "-";
+                }
+
+                calculateHolisticMetrics(normalizedScores);
+                document.getElementById('last-updated').innerText = 'Last Updated: ' + new Date().toLocaleTimeString();
+
+            } catch (error) {
+                console.error("Error fetching aggregated data:", error);
+            }
+        }
+
+        function calculateHolisticMetrics(scores) {
+            const agentNames = Object.keys(scores);
+            
+            if (agentNames.length === 0) {
+                updateUIAndChart(0, "ALL OFFLINE", "System Offline", "text-black", "Check backend connections.");
+                return;
+            }
+
+            const totalScore = agentNames.reduce((acc, name) => acc + scores[name], 0);
+            const index = totalScore / agentNames.length;
+            
+            let minScore = 1.1;
+            let worstAgent = 'None';
+            for (const [agent, score] of Object.entries(scores)) {
+                if (score < minScore) {
+                    minScore = score;
+                    worstAgent = agent;
+                }
+            }
+
+            let titleText = "", titleClass = "", descText = "";
+            if (index >= 0.8) {
+                titleText = "Excellent Performance";
+                titleClass = "text-cooperGreen";
+                descText = "All systems are running smoothly.";
+            } else if (index >= 0.6) {
+                titleText = "Stable Operations";
+                titleClass = "text-cooperBlue";
+                descText = "Satisfaction is stable; optimization possible.";
+            } else if (index >= 0.4) {
+                titleText = "Degrading Satisfaction";
+                titleClass = "text-orange-500";
+                descText = "Systems experiencing friction. Review needed.";
+            } else {
+                titleText = "Critical System Failure";
+                titleClass = "text-red-600";
+                descText = "Severe impact. Address agents immediately.";
+            }
+
+            updateUIAndChart(index, `${worstAgent} (${(minScore * 100).toFixed(1)}%)`, titleText, titleClass, descText);
+        }
+
+        function updateUIAndChart(index, worstAgentText, titleText, titleClass, descText) {
+            document.getElementById('holistic-score').innerText = index.toFixed(2);
+            document.getElementById('underperforming-agent').innerText = worstAgentText;
+            
+            const titleEl = document.getElementById('feedback-title');
+            titleEl.innerText = titleText;
+            titleEl.className = `text-xl font-bold uppercase ${titleClass}`;
+            document.getElementById('feedback-text').innerText = descText;
+
+            // UPDATE STATE FOR TWILIO
+            currentHolisticIndex = index.toFixed(2);
+            currentStatusText = titleText;
+
+            const timeLabel = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second:'2-digit' });
+            trendChart.data.labels.push(timeLabel);
+            trendChart.data.datasets[0].data.push(index);
+
+            if (trendChart.data.labels.length > 15) {
+                trendChart.data.labels.shift();
+                trendChart.data.datasets[0].data.shift();
+            }
+            trendChart.update();
+
+            pingWhatsAppServer(index.toFixed(2), titleText, worstAgentText);
+        }
+
+        fetchAgentData();
+        setInterval(fetchAgentData, 5000);
+
+    </script>
+</body>
+</html>

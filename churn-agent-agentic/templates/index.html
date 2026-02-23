@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Predictive Churn Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f4f7f9;
+        }
+
+        /* Custom scrollbar */
+        .table-container::-webkit-scrollbar { height: 8px; width: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #ffffff; border-top: 2px solid black; }
+        .table-container::-webkit-scrollbar-thumb { background: #000000; }
+
+        /* Refined Brutalist Style Utilities */
+        .brutal-card {
+            background-color: #ffffff;
+            border: 2px solid #000000;
+            box-shadow: 4px 4px 0px 0px #000000;
+            transition: transform 0.1s ease;
+        }
+        
+        .brutal-card-sm {
+            background-color: #ffffff;
+            border: 2px solid #000000;
+            box-shadow: 3px 3px 0px 0px #000000;
+        }
+
+        .brutal-badge {
+            background-color: #22c55e;
+            color: #ffffff;
+            border: 2px solid #000000;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 0.15rem 0.5rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+        }
+
+        .brutal-box-number {
+            border: 3px solid #000000;
+            padding: 0.75rem 1.25rem;
+            display: inline-block;
+            font-weight: 900;
+            line-height: 1;
+            background: #ffffff;
+        }
+
+        .brutal-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        
+        .brutal-table th, .brutal-table td {
+            border: 1px solid #000000;
+            padding: 0.5rem 0.75rem;
+            color: #000000;
+        }
+        
+        .brutal-table thead {
+            background-color: #ffffff;
+        }
+        
+        .brutal-table th {
+            font-weight: 800;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000000;
+            letter-spacing: 0.025em;
+        }
+
+        .brutal-table tbody tr:hover {
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+<body class="text-black p-4 md:p-8 min-h-screen">
+
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <div class="flex flex-col md:flex-row justify-between items-end border-b-2 border-black pb-3">
+            <div>
+                <div class="text-blue-600 font-bold uppercase tracking-[0.2em] text-xs mb-1">O V E R V I E W</div>
+                <h1 class="text-2xl font-black text-black uppercase tracking-tight">CHURN Agent</h1>
+                <p class="text-xs font-bold uppercase mt-1 text-gray-600">Random Forest Model Active | Live Telemetry</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <div class="brutal-badge bg-green-500" id="last-updated">WAITING...</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="brutal-card p-6 flex flex-col justify-center items-center text-center">
+                <h2 class="text-sm font-bold uppercase text-black mb-4 tracking-wider">Real-Time Churn Prediction</h2>
+                <div class="brutal-box-number text-5xl text-blue-600" id="latest-risk">--%</div>
+            </div>
+
+            <div class="brutal-card p-6 flex flex-col justify-center items-center text-center">
+                <h2 class="text-sm font-bold uppercase text-black mb-4 tracking-wider">Rolling Avg (Last 20 Reads)</h2>
+                <div class="brutal-box-number text-5xl" id="rolling-avg">--%</div>
+            </div>
+        </div>
+
+        <div class="brutal-card p-5">
+            <div class="flex justify-between items-center mb-4 border-b border-black pb-2">
+                <h3 class="text-base font-black text-black uppercase">Live Trend Analysis</h3>
+                <span class="brutal-badge bg-blue-600">Real-Time</span>
+            </div>
+            <div class="w-full h-64">
+                <canvas id="historyChart"></canvas>
+            </div>
+        </div>
+
+        <div>
+            <div class="text-green-600 font-bold uppercase tracking-[0.2em] text-xs mb-3">A G E N T &nbsp; D E T A I L S</div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                <div class="brutal-card-sm p-3 flex flex-col justify-between">
+                    <p class="text-[0.65rem] font-bold uppercase border-b border-black pb-1 mb-2 text-gray-600">UX Friction</p>
+                    <h3 class="text-xl font-black mt-1"><span id="ux-risk">--</span>%</h3>
+                </div>
+                <div class="brutal-card-sm p-3 flex flex-col justify-between">
+                    <p class="text-[0.65rem] font-bold uppercase border-b border-black pb-1 mb-2 text-gray-600">Delivery Delay</p>
+                    <h3 class="text-xl font-black mt-1"><span id="del-risk">--</span>%</h3>
+                </div>
+                <div class="brutal-card-sm p-3 flex flex-col justify-between">
+                    <p class="text-[0.65rem] font-bold uppercase border-b border-black pb-1 mb-2 text-gray-600">Food Quality</p>
+                    <h3 class="text-xl font-black mt-1"><span id="food-qual">--</span>%</h3>
+                </div>
+                <div class="brutal-card-sm p-3 flex flex-col justify-between">
+                    <p class="text-[0.65rem] font-bold uppercase border-b border-black pb-1 mb-2 text-gray-600">Act/Inact Ratio</p>
+                    <h3 class="text-xl font-black mt-1" id="act-ratio">--</h3>
+                </div>
+                <div class="brutal-card-sm p-3 flex flex-col justify-between">
+                    <p class="text-[0.65rem] font-bold uppercase border-b border-black pb-1 mb-2 text-gray-600">Avg Orders/Usr</p>
+                    <h3 class="text-xl font-black mt-1" id="avg-orders">--</h3>
+                </div>
+                <div class="brutal-card-sm p-3 flex flex-col justify-between">
+                    <p class="text-[0.65rem] font-bold uppercase border-b border-black pb-1 mb-2 text-gray-600">Cancel Rate</p>
+                    <h3 class="text-xl font-black mt-1 text-red-600" id="cancel-rate">--</h3>
+                </div>
+                <div class="brutal-card-sm p-3 flex flex-col justify-between">
+                    <p class="text-[0.65rem] font-bold uppercase border-b border-black pb-1 mb-2 text-gray-600">Avg Order Val</p>
+                    <h3 class="text-xl font-black mt-1">$<span id="aov">--</span></h3>
+                </div>
+                <div class="brutal-card-sm p-3 flex flex-col justify-between">
+                    <p class="text-[0.65rem] font-bold uppercase border-b border-black pb-1 mb-2 text-gray-600">Discount Usage</p>
+                    <h3 class="text-xl font-black mt-1"><span id="disc-usage">--</span>%</h3>
+                </div>
+                <div class="brutal-card-sm p-3 flex flex-col justify-between">
+                    <p class="text-[0.65rem] font-bold uppercase border-b border-black pb-1 mb-2 text-gray-600">Comp. Resol.</p>
+                    <h3 class="text-xl font-black mt-1" id="comp-resol">--</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="brutal-card p-0 overflow-hidden">
+            <div class="p-3 border-b-2 border-black bg-white">
+                <h3 class="text-sm font-black text-black uppercase tracking-wider">Historical Telemetry</h3>
+            </div>
+            <div class="overflow-x-auto table-container h-80 bg-white">
+                <table class="brutal-table min-w-max">
+                    <thead class="sticky top-0 z-10 shadow-[0_2px_0_0_#000000]">
+                        <tr>
+                            <th>Time</th>
+                            <th class="text-blue-600">Churn %</th>
+                            <th>UX %</th>
+                            <th>Deliv %</th>
+                            <th>Food Q. %</th>
+                            <th>Ratio</th>
+                            <th>Ord/Usr</th>
+                            <th>Cancel Rate</th>
+                            <th>AOV</th>
+                            <th>Disc %</th>
+                            <th>Comp. Res</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table">
+                        <tr><td colspan="11" class="py-6 text-center font-bold uppercase text-xs">Loading ML predictions...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('historyChart').getContext('2d');
+        const historyChart = new Chart(ctx, {
+            type: 'line',
+            data: { 
+                labels: [], 
+                datasets: [{ 
+                    label: 'Predicted Churn Risk (%)', 
+                    data: [], 
+                    borderColor: '#000000', 
+                    backgroundColor: '#eef2ff', 
+                    borderWidth: 2, 
+                    pointBackgroundColor: '#22c55e', 
+                    pointBorderColor: '#000000',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true, 
+                    tension: 0.1 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: { display: false } }, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        max: 100,
+                        grid: { color: '#f1f5f9', borderColor: '#000000', tickLength: 0 },
+                        ticks: { color: '#000000', font: { weight: 'bold', family: 'Inter', size: 10 } }
+                    },
+                    x: {
+                        grid: { display: false, borderColor: '#000000' },
+                        ticks: { color: '#000000', font: { weight: 'bold', family: 'Inter', size: 10 } }
+                    }
+                } 
+            }
+        });
+
+        async function fetchData() {
+            try {
+                const latestRes = await fetch('/api/churn/latest');
+                const latestJson = await latestRes.json();
+                
+                const historyRes = await fetch('/api/churn/history');
+                const historyJson = await historyRes.json();
+                
+                if (latestJson.status === 'success' && historyJson.status === 'success') {
+                    const latest = latestJson.data;
+                    const f = latest.factors;
+                    
+                    // Top Risk Metrics
+                    document.getElementById('latest-risk').innerText = latest.overall_churn_risk_percent + '%';
+                    document.getElementById('rolling-avg').innerText = latestJson.rolling_average_20 + '%';
+                    document.getElementById('last-updated').innerText = new Date().toLocaleTimeString();
+
+                    // Feature Grid Updates
+                    document.getElementById('ux-risk').innerText = f.ux_friction_pct;
+                    document.getElementById('del-risk').innerText = f.delivery_delay_pct;
+                    document.getElementById('food-qual').innerText = f.food_quality_pct;
+                    document.getElementById('act-ratio').innerText = f.active_inactive_ratio;
+                    document.getElementById('avg-orders').innerText = f.avg_orders_per_user;
+                    document.getElementById('cancel-rate').innerText = f.cancellation_rate;
+                    document.getElementById('aov').innerText = f.avg_order_value;
+                    document.getElementById('disc-usage').innerText = f.discount_usage_pct;
+                    document.getElementById('comp-resol').innerText = f.complaints_resolved_ratio;
+
+                    // Chart Update
+                    const chartData = historyJson.data.slice(0, 30).reverse();
+                    historyChart.data.labels = chartData.map(d => d.timestamp.split(' ')[1]);
+                    historyChart.data.datasets[0].data = chartData.map(d => d.overall_churn_risk_percent);
+                    historyChart.update();
+
+                    // Table Update
+                    const tbody = document.getElementById('history-table');
+                    tbody.innerHTML = '';
+                    historyJson.data.slice(0, 50).forEach((row) => {
+                        const tr = document.createElement('tr');
+                        const isHighRisk = row.overall_churn_risk_percent > 50;
+                        tr.innerHTML = `
+                            <td class="whitespace-nowrap font-bold">${row.timestamp.split(' ')[1]}</td>
+                            <td class="whitespace-nowrap font-black ${isHighRisk ? 'text-red-600' : 'text-blue-600'}">${row.overall_churn_risk_percent}%</td>
+                            <td class="font-bold text-gray-800">${row.factors.ux_friction_pct}</td>
+                            <td class="font-bold text-gray-800">${row.factors.delivery_delay_pct}</td>
+                            <td class="font-bold text-gray-800">${row.factors.food_quality_pct}</td>
+                            <td class="font-bold text-gray-800">${row.factors.active_inactive_ratio}</td>
+                            <td class="font-bold text-gray-800">${row.factors.avg_orders_per_user}</td>
+                            <td class="font-bold text-gray-800">${row.factors.cancellation_rate}</td>
+                            <td class="font-bold text-gray-800">${row.factors.avg_order_value}</td>
+                            <td class="font-bold text-gray-800">${row.factors.discount_usage_pct}</td>
+                            <td class="font-bold text-gray-800">${row.factors.complaints_resolved_ratio}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (err) { console.error('Error fetching data:', err); }
+        }
+
+        fetchData();
+        setInterval(fetchData, 5000); 
+    </script>
+</body>
+</html>
