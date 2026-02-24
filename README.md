@@ -1,4 +1,4 @@
-# Multi-Modal Multi-Agentic AI Framework for Customer Satisfaction Assessment on Food Delivery Platforms
+# CustomerPulse AI | Multi-Modal Multi-Agentic AI Framework for Customer Satisfaction Assessment on Food Delivery Platforms
 
 ## Overview
 
