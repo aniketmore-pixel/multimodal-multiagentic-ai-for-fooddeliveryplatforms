@@ -12,6 +12,10 @@ dashboards into a unified AI ecosystem.
 
 ------------------------------------------------------------------------
 
+## How to run this project?
+We've provided a batch file to run every agent, there are 5 batch files in total,
+one for every agent and one for the unified dashboard.
+
 ## System Architecture
 
 The framework consists of multiple intelligent agents:
