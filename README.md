@@ -154,8 +154,8 @@ All Agents → Mission Control Dashboard → Alert System
 
 ## Authors
 
-Aniket More
-Aarya Arban
-Digvijaysingh Rajput
+Aniket More,
+Aarya Arban,
+Digvijaysingh Rajput,
 Vamshi Marri
 
