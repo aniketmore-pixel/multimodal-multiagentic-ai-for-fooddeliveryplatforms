@@ -1,8 +1,8 @@
-# CustomerPulse AI | Multi-Modal Multi-Agentic AI Framework for Customer Satisfaction Assessment on Food Delivery Platforms
+# CustomerPulse ML | Multi-Modal Multi-Agentic ML Framework for Customer Satisfaction Assessment on Food Delivery Platforms
 
 ## Overview
 
-This project presents a distributed, multi-modal, multi-agent AI
+This project presents a distributed, multi-modal, multi-agent ML
 framework designed to assess and predict customer satisfaction on a
 food delivery platform in real time.
 
