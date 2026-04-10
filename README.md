@@ -87,9 +87,8 @@ This enables comprehensive customer satisfaction assessment.
 
 ### Backend
 
--   Python
--   FastAPI
 -   Flask
+-   Python
 -   PyTorch
 -   HuggingFace Transformers
 -   Scikit-learn
@@ -98,6 +97,7 @@ This enables comprehensive customer satisfaction assessment.
 ### Machine Learning
 
 -   DistilBERT (Regression & ANN architectures)
+-   ResNet18
 -   RandomForestRegressor
 -   MSE / MAE evaluation metrics
 
